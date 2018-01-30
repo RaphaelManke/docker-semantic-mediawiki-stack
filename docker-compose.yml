@@ -1,0 +1,56 @@
+# MediaWiki with MariaDB
+#
+# Access via "http://localhost:8080"
+#   (or "http://$(docker-machine ip):8080" if using docker-machine)
+version: '3'
+services:
+  mediawiki:
+    build:
+      context: ./docker-semantic-mediawiki/
+      #args:
+       # tag: "1.30"
+
+    #image: local/mediawiki
+    #image: mediawiki
+    restart: always
+    ports:
+      - ${HTTP_PORT:-8080}:80
+    links:
+      - database
+    volumes:
+      - /var/www/html/images
+      # After initial setup, download LocalSettings.php to the same directory as
+      # this yaml and uncomment the following line and use compose to restart
+      # the mediawiki service
+      #- ./LocalSettings.php:/var/www/html/LocalSettings.php
+      # - ./SemanticMediaWiki:/var/www/html/extensions/SemanticMediaWiki
+      - ./semantic-mediawiki-docker/scripts/check_db.sh:/var/www/html/check_db.sh
+      - ./semantic-mediawiki-docker/extensions.json:/var/www/html/extensions.json
+      - ./semantic-mediawiki-docker/scripts/install_extensions.sh:/var/www/html/install_extensions.sh
+    environment:
+      DATABASE_NAME: ${DATABASE_NAME:-my_wiki}
+      DATABASE_USER: ${DATABASE_USER:-wikiuser}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD:-example}
+      DATABASE_HOSTNAME: database
+      SMW_ADMIN_USER: ${SMW_ADMIN_USER:-Admin}
+      SMW_ADMIN_PASSWORD: ${SMW_ADMIN_PASSWORD:-smw-docker}
+      SMW_DATABASE_USER: ${DATABASE_USER:-Admin}
+      SMW_DATABASE_PASSWORD: ${DATABASE_PASSWORD:-smw-docker}
+      SMW_INSTANCE_NAME: ${SMW_INSTANCE_NAME:-Example Semantic Media Wiki for KIT}
+      SMW_LANGUAGE: ${SMW_LANGUAGE:-de}
+      SMW_HTTP_PORT: ${HTTP_PORT:-8080}
+
+    depends_on:
+      - database
+  database:
+    image: mariadb
+    restart: always
+    volumes:
+      #- ./mediawiki-database-docker/data:/var/lib/mysql
+      - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+    environment:
+      # @see https://phabricator.wikimedia.org/source/mediawiki/browse/master/includes/DefaultSettings.php
+      MYSQL_DATABASE: ${DATABASE_NAME:-my_wiki}
+      MYSQL_USER: ${DATABASE_USER:-wikiuser}
+      MYSQL_PASSWORD: ${DATABASE_PASSWORD:-example}
+      MYSQL_RANDOM_ROOT_PASSWORD: ${DATABASE_RANDOM_ROOT_PASSWORD:-yes}
