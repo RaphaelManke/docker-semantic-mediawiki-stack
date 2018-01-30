@@ -23,9 +23,9 @@ services:
       # the mediawiki service
       #- ./LocalSettings.php:/var/www/html/LocalSettings.php
       # - ./SemanticMediaWiki:/var/www/html/extensions/SemanticMediaWiki
-      - ./semantic-mediawiki-docker/scripts/check_db.sh:/var/www/html/check_db.sh
+      #- ./semantic-mediawiki-docker/scripts/check_db.sh:/var/www/html/check_db.sh
       - ./semantic-mediawiki-docker/extensions.json:/var/www/html/extensions.json
-      - ./semantic-mediawiki-docker/scripts/install_extensions.sh:/var/www/html/install_extensions.sh
+      #- ./semantic-mediawiki-docker/scripts/install_extensions.sh:/var/www/html/install_extensions.sh
     environment:
       DATABASE_NAME: ${DATABASE_NAME:-my_wiki}
       DATABASE_USER: ${DATABASE_USER:-wikiuser}
