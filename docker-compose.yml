@@ -5,11 +5,6 @@
 version: '3'
 services:
   mediawiki:
-    #build:
-     # context: ./docker-semantic-mediawiki/
-      #args:
-       # tag: "1.30"
-
     image: raphaelmanke/docker-semantic-mediawiki
     restart: always
     ports:
@@ -17,15 +12,11 @@ services:
     links:
       - database
     volumes:
-      - /var/www/html/images
       # After initial setup, download LocalSettings.php to the same directory as
       # this yaml and uncomment the following line and use compose to restart
       # the mediawiki service
-      #- ./LocalSettings.php:/var/www/html/LocalSettings.php
-      # - ./SemanticMediaWiki:/var/www/html/extensions/SemanticMediaWiki
-      #- ./semantic-mediawiki-docker/scripts/check_db.sh:/var/www/html/check_db.sh
-      - ./semantic-mediawiki-docker/extensions.json:/var/www/html/extensions.json
-      #- ./semantic-mediawiki-docker/scripts/install_extensions.sh:/var/www/html/install_extensions.sh
+      # - ./LocalSettings.php:/var/www/html/LocalSettings.php
+      - ./extension.json:/var/www/html/extensions.json
     environment:
       DATABASE_NAME: ${DATABASE_NAME:-my_wiki}
       DATABASE_USER: ${DATABASE_USER:-wikiuser}
@@ -44,12 +35,15 @@ services:
   database:
     image: mariadb
     restart: always
+    ports:
+      - 3306:3306
     volumes:
-      #- ./mediawiki-database-docker/data:/var/lib/mysql
+      # For persistent data-storage activate the following line
+      # - ./mediawiki-database-docker/data:/var/lib/mysql
       - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
     environment:
       # @see https://phabricator.wikimedia.org/source/mediawiki/browse/master/includes/DefaultSettings.php
       MYSQL_DATABASE: ${DATABASE_NAME:-my_wiki}
       MYSQL_USER: ${DATABASE_USER:-wikiuser}
       MYSQL_PASSWORD: ${DATABASE_PASSWORD:-example}
-      MYSQL_RANDOM_ROOT_PASSWORD: ${DATABASE_RANDOM_ROOT_PASSWORD:-yes}
+      MYSQL_ROOT_PASSWORD: ${DATABASE_PASSWORD:-example}
