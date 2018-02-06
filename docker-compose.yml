@@ -16,7 +16,7 @@ services:
       # this yaml and uncomment the following line and use compose to restart
       # the mediawiki service
       # - ./LocalSettings.php:/var/www/html/LocalSettings.php
-      - ./extension.json:/var/www/html/extensions.json
+      - ./extensions.json:/var/www/html/extensions.json
     environment:
       DATABASE_NAME: ${DATABASE_NAME:-my_wiki}
       DATABASE_USER: ${DATABASE_USER:-wikiuser}
